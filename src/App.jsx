@@ -13,12 +13,10 @@ const PaintVisualizer = () => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [processedImage, setProcessedImage] = useState(null);
-  const [brightness, setBrightness] = useState(100);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   const paintColors = [
-    // ... (Your paintColors array remains the same)
     // Whites & Neutrals
     {
       name: "Swiss Coffee",
@@ -401,17 +399,6 @@ const PaintVisualizer = () => {
     },
   ];
 
-  const hexToRgb = (hex) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : null;
-  };
-
   const applyColorToBackground = (color) => {
     if (!uploadedImage) return;
 
@@ -423,29 +410,18 @@ const PaintVisualizer = () => {
       const img = new Image();
 
       img.onload = () => {
+        // Set canvas dimensions to match the image
         canvas.width = img.width;
         canvas.height = img.height;
+
+        // Fill the entire canvas with the selected color
+        ctx.fillStyle = color.hex;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the user's image (with its transparent parts) on top of the color
         ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        const rgb = hexToRgb(color.hex);
-        const brightnessMultiplier = brightness / 100;
 
-        for (let i = 0; i < data.length; i += 4) {
-          const alpha = data[i + 3];
-          if (alpha < 255) {
-            data[i] = rgb.r * brightnessMultiplier;
-            data[i + 1] = rgb.g * brightnessMultiplier;
-            data[i + 2] = rgb.b * brightnessMultiplier;
-            data[i + 3] = 255;
-          } else {
-            data[i] *= brightnessMultiplier;
-            data[i + 1] *= brightnessMultiplier;
-            data[i + 2] *= brightnessMultiplier;
-          }
-        }
-
-        ctx.putImageData(imageData, 0, 0);
+        // Set the processed image state
         setProcessedImage(canvas.toDataURL());
         setIsLoading(false);
       };
@@ -458,7 +434,7 @@ const PaintVisualizer = () => {
     if (selectedColor && uploadedImage) {
       applyColorToBackground(selectedColor);
     }
-  }, [selectedColor, uploadedImage, brightness]);
+  }, [selectedColor, uploadedImage]); // Removed brightness from dependencies
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -482,7 +458,6 @@ const PaintVisualizer = () => {
   const resetImage = () => {
     setSelectedColor(null);
     setProcessedImage(null);
-    setBrightness(100);
   };
 
   const downloadImage = () => {
@@ -527,7 +502,7 @@ const PaintVisualizer = () => {
                     <Upload />
                     <span>Upload Room</span>
                   </button>
-                  {selectedColor && (
+                  {uploadedImage && (
                     <button
                       onClick={resetImage}
                       className="button button-secondary"
@@ -550,7 +525,7 @@ const PaintVisualizer = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/png,image/jpeg,image/jpg"
+                accept="image/png"
                 onChange={handleImageUpload}
                 style={{ display: "none" }}
               />
@@ -558,7 +533,7 @@ const PaintVisualizer = () => {
               <div className="preview-area">
                 {isLoading && (
                   <div className="loading-overlay">
-                    <Loader />
+                    <Loader style={{ animation: "spin 1s linear infinite" }} />
                   </div>
                 )}
                 {uploadedImage ? (
@@ -603,35 +578,37 @@ const PaintVisualizer = () => {
         </div>
 
         {selectedColor && (
-          <div className="card color-details">
-            <h3>Selected Color Details</h3>
-            <div className="color-details-grid">
-              <div>
-                <div
-                  className="color-preview"
-                  style={{ backgroundColor: selectedColor.hex }}
-                />
-                <p>
-                  <strong>Color Name:</strong> {selectedColor.name}
-                </p>
-                <p>
-                  <strong>Brand:</strong> {selectedColor.brand}
-                </p>
-                <p>
-                  <strong>Color Code:</strong> {selectedColor.code}
-                </p>
-              </div>
-              <div>
-                <h4>Purchase Information</h4>
-                <p>
-                  <strong>Hex Code:</strong> {selectedColor.hex}
-                </p>
-                <p>
-                  <strong>Product Code:</strong> {selectedColor.code}
-                </p>
-                <p>
-                  <strong>Color Family:</strong> {selectedColor.family}
-                </p>
+          <div className="card" style={{ marginTop: "1.5rem" }}>
+            <div style={{ padding: "1.5rem" }}>
+              <h3 style={{ marginTop: 0 }}>Selected Color Details</h3>
+              <div className="color-details-grid">
+                <div>
+                  <div
+                    className="color-preview"
+                    style={{ backgroundColor: selectedColor.hex }}
+                  />
+                  <p>
+                    <strong>Color Name:</strong> {selectedColor.name}
+                  </p>
+                  <p>
+                    <strong>Brand:</strong> {selectedColor.brand}
+                  </p>
+                  <p>
+                    <strong>Color Code:</strong> {selectedColor.code}
+                  </p>
+                </div>
+                <div>
+                  <h4>Purchase Information</h4>
+                  <p>
+                    <strong>Hex Code:</strong> {selectedColor.hex}
+                  </p>
+                  <p>
+                    <strong>Product Code:</strong> {selectedColor.code}
+                  </p>
+                  <p>
+                    <strong>Color Family:</strong> {selectedColor.family}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
