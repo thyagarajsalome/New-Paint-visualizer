@@ -1,13 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Download, Info, Palette, Upload, RotateCcw } from "lucide-react";
+import {
+  Download,
+  Info,
+  Palette,
+  Upload,
+  RotateCcw,
+  Loader,
+} from "lucide-react";
 
 const PaintVisualizer = () => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [processedImage, setProcessedImage] = useState(null);
   const [brightness, setBrightness] = useState(100);
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
-  const canvasRef = useRef(null);
 
   const paintColors = [
     // Whites & Neutrals
@@ -406,53 +413,57 @@ const PaintVisualizer = () => {
   const applyColorToBackground = (color) => {
     if (!uploadedImage) return;
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
+    setIsLoading(true);
 
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
+    setTimeout(() => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
 
-      // Draw original image
-      ctx.drawImage(img, 0, 0);
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
 
-      // Get image data
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
+        // Draw original image
+        ctx.drawImage(img, 0, 0);
 
-      // Parse the selected color
-      const rgb = hexToRgb(color.hex);
-      const brightnessMultiplier = brightness / 100;
+        // Get image data
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
 
-      // Apply color to transparent/background pixels
-      for (let i = 0; i < data.length; i += 4) {
-        const alpha = data[i + 3];
+        // Parse the selected color
+        const rgb = hexToRgb(color.hex);
+        const brightnessMultiplier = brightness / 100;
 
-        // If pixel is transparent or semi-transparent, apply wall color
-        if (alpha < 250) {
-          const transparency = 1 - alpha / 255;
-          data[i] = rgb.r * brightnessMultiplier; // R
-          data[i + 1] = rgb.g * brightnessMultiplier; // G
-          data[i + 2] = rgb.b * brightnessMultiplier; // B
-          data[i + 3] = 255; // Full opacity for background
-        } else {
-          // For non-transparent pixels (furniture, objects), keep original
-          // but apply subtle lighting adjustment
-          data[i] = data[i] * brightnessMultiplier;
-          data[i + 1] = data[i + 1] * brightnessMultiplier;
-          data[i + 2] = data[i + 2] * brightnessMultiplier;
+        // Apply color to transparent/background pixels
+        for (let i = 0; i < data.length; i += 4) {
+          const alpha = data[i + 3];
+
+          // If pixel is not fully opaque, apply wall color
+          if (alpha < 255) {
+            data[i] = rgb.r * brightnessMultiplier; // R
+            data[i + 1] = rgb.g * brightnessMultiplier; // G
+            data[i + 2] = rgb.b * brightnessMultiplier; // B
+            data[i + 3] = 255; // Full opacity for background
+          } else {
+            // For non-transparent pixels (furniture, objects), keep original
+            // but apply subtle lighting adjustment
+            data[i] = data[i] * brightnessMultiplier;
+            data[i + 1] = data[i + 1] * brightnessMultiplier;
+            data[i + 2] = data[i + 2] * brightnessMultiplier;
+          }
         }
-      }
 
-      // Put modified image data back
-      ctx.putImageData(imageData, 0, 0);
+        // Put modified image data back
+        ctx.putImageData(imageData, 0, 0);
 
-      // Convert to data URL and set as processed image
-      setProcessedImage(canvas.toDataURL());
-    };
+        // Convert to data URL and set as processed image
+        setProcessedImage(canvas.toDataURL());
+        setIsLoading(false);
+      };
 
-    img.src = uploadedImage;
+      img.src = uploadedImage;
+    }, 50);
   };
 
   useEffect(() => {
@@ -468,6 +479,10 @@ const PaintVisualizer = () => {
       reader.onload = (event) => {
         setUploadedImage(event.target.result);
         setProcessedImage(null);
+        // If a color is already selected, apply it to the new image
+        if (selectedColor) {
+          applyColorToBackground(selectedColor);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -567,6 +582,11 @@ const PaintVisualizer = () => {
               </div>
 
               <div className="relative aspect-video bg-gray-100">
+                {isLoading && (
+                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                    <Loader className="w-12 h-12 text-blue-600 animate-spin" />
+                  </div>
+                )}
                 {uploadedImage ? (
                   <div className="relative w-full h-full flex items-center justify-center p-4">
                     <img
