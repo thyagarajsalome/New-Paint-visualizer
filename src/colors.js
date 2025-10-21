@@ -140,7 +140,7 @@ export const paintColors = [
   { name: "Liveable Green", hex: "#D3D3BF" },
   { name: "Seafoam", hex: "#D3E0D8" },
   { name: "Contented", hex: "#BFC5B2" },
-  { name:: "Dried Thyme", hex: "#89886E" },
+  { name: "Dried Thyme", hex: "#89886E" },
   { name: "Rosemary", hex: "#7A7F6F" },
   { name: "Pewter Green", hex: "#788075" },
   { name: "Rookwood Dark Green", hex: "#4A524A" },
@@ -243,5 +243,5 @@ export const paintColors = [
   { name: "Cyberspace", hex: "#464B50" },
   { name: "Web Gray", hex: "#777876" },
   { name: "Grays Harbor", hex: "#657074" },
-  { name: "Outerspace", hex: "#535C62" }
+  { name: "Outerspace", hex: "#535C62" },
 ];

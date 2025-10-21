@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { paintColors } from "./colors.js";
+import { images } from "../public/image/Bathroom";
+import { images } from "../public/image/Bedroom";
+import { images } from "../public/image/Kithchen";
+import { images } from "../public/image/Living room";
 
 // Data for the rooms
 const rooms = [
   {
     name: "Living Hall",
-    image:
-      "https://res.cloudinary.com/dyx47hcln/image/upload/v1718890251/paint-visualizer/living-room.png",
+    image: "./Living room",
   },
   {
     name: "Bedroom",
