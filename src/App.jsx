@@ -1,30 +1,23 @@
 import React, { useState } from "react";
 import { paintColors } from "./colors.js";
-import { images } from "../public/image/Bathroom";
-import { images } from "../public/image/Bedroom";
-import { images } from "../public/image/Kithchen";
-import { images } from "../public/image/Living room";
 
-// Data for the rooms
+// Data for the rooms with corrected image paths
 const rooms = [
   {
     name: "Living Hall",
-    image: "./Living room",
+    image: "/image/Living room.png",
   },
   {
     name: "Bedroom",
-    image:
-      "https://res.cloudinary.com/dyx47hcln/image/upload/v1718890251/paint-visualizer/bedroom.png",
+    image: "/image/Bedroom.png",
   },
   {
     name: "Kitchen",
-    image:
-      "https://res.cloudinary.com/dyx47hcln/image/upload/v1718890251/paint-visualizer/kitchen.png",
+    image: "/image/Kitchen.png",
   },
   {
     name: "Bathroom",
-    image:
-      "https://res.cloudinary.com/dyx47hcln/image/upload/v1718890251/paint-visualizer/bathroom.png",
+    image: "/image/Bathroom.png",
   },
 ];
 
