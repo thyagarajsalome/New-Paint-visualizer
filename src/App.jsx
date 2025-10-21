@@ -53,12 +53,13 @@ function App() {
         {/* Room Previews Grid */}
         <div className="rooms-grid">
           {rooms.map((room) => (
-            <div
-              key={room.name}
-              className="room-preview"
-              style={{ backgroundColor: selectedColor }}
-            >
-              <img src={room.image} alt={room.name} className="room-image" />
+            <div key={room.name} className="room-container">
+              <div
+                className="room-preview"
+                style={{ backgroundColor: selectedColor }}
+              >
+                <img src={room.image} alt={room.name} className="room-image" />
+              </div>
               <p className="room-name">{room.name}</p>
             </div>
           ))}
