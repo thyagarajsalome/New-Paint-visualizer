@@ -1,3 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Import all the app styles */
+@import "./App.css";
+
+/* Basic Reset */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}

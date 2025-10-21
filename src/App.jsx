@@ -7,6 +7,7 @@ import {
   RotateCcw,
   Loader,
 } from "lucide-react";
+import "./App.css"; // Import your new stylesheet
 
 const PaintVisualizer = () => {
   const [selectedColor, setSelectedColor] = useState(null);
@@ -17,6 +18,7 @@ const PaintVisualizer = () => {
   const fileInputRef = useRef(null);
 
   const paintColors = [
+    // ... (Your paintColors array remains the same)
     // Whites & Neutrals
     {
       name: "Swiss Coffee",
@@ -423,41 +425,27 @@ const PaintVisualizer = () => {
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
-
-        // Draw original image
         ctx.drawImage(img, 0, 0);
-
-        // Get image data
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
-
-        // Parse the selected color
         const rgb = hexToRgb(color.hex);
         const brightnessMultiplier = brightness / 100;
 
-        // Apply color to transparent/background pixels
         for (let i = 0; i < data.length; i += 4) {
           const alpha = data[i + 3];
-
-          // If pixel is not fully opaque, apply wall color
           if (alpha < 255) {
-            data[i] = rgb.r * brightnessMultiplier; // R
-            data[i + 1] = rgb.g * brightnessMultiplier; // G
-            data[i + 2] = rgb.b * brightnessMultiplier; // B
-            data[i + 3] = 255; // Full opacity for background
+            data[i] = rgb.r * brightnessMultiplier;
+            data[i + 1] = rgb.g * brightnessMultiplier;
+            data[i + 2] = rgb.b * brightnessMultiplier;
+            data[i + 3] = 255;
           } else {
-            // For non-transparent pixels (furniture, objects), keep original
-            // but apply subtle lighting adjustment
-            data[i] = data[i] * brightnessMultiplier;
-            data[i + 1] = data[i + 1] * brightnessMultiplier;
-            data[i + 2] = data[i + 2] * brightnessMultiplier;
+            data[i] *= brightnessMultiplier;
+            data[i + 1] *= brightnessMultiplier;
+            data[i + 2] *= brightnessMultiplier;
           }
         }
 
-        // Put modified image data back
         ctx.putImageData(imageData, 0, 0);
-
-        // Convert to data URL and set as processed image
         setProcessedImage(canvas.toDataURL());
         setIsLoading(false);
       };
@@ -479,7 +467,6 @@ const PaintVisualizer = () => {
       reader.onload = (event) => {
         setUploadedImage(event.target.result);
         setProcessedImage(null);
-        // If a color is already selected, apply it to the new image
         if (selectedColor) {
           applyColorToBackground(selectedColor);
         }
@@ -500,7 +487,6 @@ const PaintVisualizer = () => {
 
   const downloadImage = () => {
     if (!processedImage) return;
-
     const link = document.createElement("a");
     link.download = `paint-preview-${
       selectedColor?.name.replace(/\s+/g, "-") || "original"
@@ -510,298 +496,147 @@ const PaintVisualizer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Palette className="w-8 h-8 text-blue-600" />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Paint Visualizer
-                </h1>
-                <p className="text-sm text-gray-600">
-                  Visualize your perfect wall color
-                </p>
-              </div>
+    <div>
+      <header className="header">
+        <div className="header-content">
+          <div className="header-title">
+            <Palette />
+            <div>
+              <h1>Paint Visualizer</h1>
+              <p>Visualize your perfect wall color</p>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Info className="w-4 h-4" />
-              <span>Professional Color Selection Tool</span>
-            </div>
+          </div>
+          <div className="header-info">
+            <Info />
+            <span>Professional Color Selection Tool</span>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Visualization Area */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div className="p-4 bg-gray-50 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Preview
-                  </h2>
-                  <div className="flex space-x-2">
+      <main className="app-container">
+        <div className="main-grid">
+          <div className="main-content">
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">Preview</h2>
+                <div className="button-group">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="button button-primary"
+                  >
+                    <Upload />
+                    <span>Upload Room</span>
+                  </button>
+                  {selectedColor && (
                     <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={resetImage}
+                      className="button button-secondary"
                     >
-                      <Upload className="w-4 h-4" />
-                      <span>Upload Room</span>
+                      <RotateCcw />
+                      <span>Reset</span>
                     </button>
-                    {selectedColor && (
-                      <button
-                        onClick={resetImage}
-                        className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                        <span>Reset</span>
-                      </button>
-                    )}
-                    {processedImage && (
-                      <button
-                        onClick={downloadImage}
-                        className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                      >
-                        <Download className="w-4 h-4" />
-                        <span>Download</span>
-                      </button>
-                    )}
-                  </div>
+                  )}
+                  {processedImage && (
+                    <button
+                      onClick={downloadImage}
+                      className="button button-success"
+                    >
+                      <Download />
+                      <span>Download</span>
+                    </button>
+                  )}
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
               </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/jpg"
+                onChange={handleImageUpload}
+                style={{ display: "none" }}
+              />
 
-              <div className="relative aspect-video bg-gray-100">
+              <div className="preview-area">
                 {isLoading && (
-                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
-                    <Loader className="w-12 h-12 text-blue-600 animate-spin" />
+                  <div className="loading-overlay">
+                    <Loader />
                   </div>
                 )}
                 {uploadedImage ? (
-                  <div className="relative w-full h-full flex items-center justify-center p-4">
-                    <img
-                      src={processedImage || uploadedImage}
-                      alt="Room preview"
-                      className="max-w-full max-h-full object-contain"
-                    />
-                  </div>
+                  <img
+                    src={processedImage || uploadedImage}
+                    alt="Room preview"
+                    className="preview-image"
+                  />
                 ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600 text-lg font-medium">
-                        Upload your room image
-                      </p>
-                      <p className="text-gray-400 text-sm mt-2">
-                        PNG images with transparent backgrounds work best
-                      </p>
-                      <p className="text-gray-400 text-xs mt-1">
-                        The transparent area will become your wall color
-                      </p>
-                    </div>
+                  <div className="upload-prompt">
+                    <Upload />
+                    <p>Upload your room image</p>
+                    <p>PNG images with transparent backgrounds work best</p>
                   </div>
                 )}
               </div>
-
-              {selectedColor && uploadedImage && (
-                <div className="p-4 bg-gray-50 border-t border-gray-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Lighting Adjustment (affects overall brightness)
-                  </label>
-                  <input
-                    type="range"
-                    min="60"
-                    max="140"
-                    value={brightness}
-                    onChange={(e) => setBrightness(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Darker Lighting</span>
-                    <span className="font-medium">{brightness}%</span>
-                    <span>Brighter Lighting</span>
-                  </div>
-                </div>
-              )}
             </div>
-
-            {/* Instructions */}
-            {!uploadedImage && (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-blue-900 mb-3">
-                  How to Use
-                </h3>
-                <ol className="space-y-2 text-blue-800">
-                  <li className="flex items-start">
-                    <span className="font-bold mr-2">1.</span>
-                    <span>
-                      Upload a PNG image of your room (transparent background
-                      recommended)
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="font-bold mr-2">2.</span>
-                    <span>
-                      Click on any color from the palette to apply it to the
-                      background
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="font-bold mr-2">3.</span>
-                    <span>
-                      Adjust the lighting slider to match your room's natural
-                      light
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="font-bold mr-2">4.</span>
-                    <span>
-                      Download your preview and take the color code to the paint
-                      store
-                    </span>
-                  </li>
-                </ol>
-              </div>
-            )}
-
-            {/* Color Details */}
-            {selectedColor && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  Selected Color Details
-                </h3>
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <div
-                      className="w-full h-32 rounded-lg shadow-md mb-4 border-2 border-gray-200"
-                      style={{ backgroundColor: selectedColor.hex }}
-                    />
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 font-medium">
-                          Color Name:
-                        </span>
-                        <span className="text-gray-900 font-semibold">
-                          {selectedColor.name}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 font-medium">
-                          Brand:
-                        </span>
-                        <span className="text-gray-900">
-                          {selectedColor.brand}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 font-medium">
-                          Color Code:
-                        </span>
-                        <span className="text-gray-900 font-mono">
-                          {selectedColor.code}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">
-                      Purchase Information
-                    </h4>
-                    <div className="space-y-3 text-sm">
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                        <p className="font-medium text-blue-900 mb-1">
-                          Hex Code
-                        </p>
-                        <p className="text-blue-700 font-mono">
-                          {selectedColor.hex}
-                        </p>
-                      </div>
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                        <p className="font-medium text-green-900 mb-1">
-                          Product Code
-                        </p>
-                        <p className="text-green-700 font-mono">
-                          {selectedColor.code}
-                        </p>
-                      </div>
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                        <p className="font-medium text-purple-900 mb-1">
-                          Color Family
-                        </p>
-                        <p className="text-purple-700">
-                          {selectedColor.family}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-600">
-                        <strong>Tip:</strong> Take this color code to your local
-                        paint store or order online. Most major retailers can
-                        match these colors.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Color Palette Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden sticky top-4">
-              <div className="p-4 bg-gray-50 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Color Palette
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  Premium US Paint Colors
-                </p>
+          <div className="sidebar">
+            <div className="card palette-sidebar">
+              <div className="card-header">
+                <h2 className="card-title">Color Palette</h2>
               </div>
-
-              <div className="p-4 max-h-[calc(100vh-12rem)] overflow-y-auto">
-                <div className="grid grid-cols-3 gap-2">
+              <div className="palette-container">
+                <div className="palette-grid">
                   {paintColors.map((color, index) => (
                     <button
                       key={index}
                       onClick={() => handleColorSelect(color)}
-                      className={`group relative aspect-square rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg border-2 ${
-                        selectedColor?.name === color.name
-                          ? "ring-4 ring-blue-500 scale-105 border-blue-400"
-                          : "border-gray-200"
+                      className={`color-swatch ${
+                        selectedColor?.name === color.name ? "selected" : ""
                       }`}
                       style={{ backgroundColor: color.hex }}
                       title={color.name}
-                    >
-                      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 rounded-lg transition-opacity" />
-                      {selectedColor?.name === color.name && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
-                            <div className="w-3 h-3 bg-blue-600 rounded-full" />
-                          </div>
-                        </div>
-                      )}
-                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white text-xs p-1 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p className="truncate font-medium">{color.name}</p>
-                        <p className="text-xs text-gray-300">{color.code}</p>
-                      </div>
-                    </button>
+                    />
                   ))}
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+
+        {selectedColor && (
+          <div className="card color-details">
+            <h3>Selected Color Details</h3>
+            <div className="color-details-grid">
+              <div>
+                <div
+                  className="color-preview"
+                  style={{ backgroundColor: selectedColor.hex }}
+                />
+                <p>
+                  <strong>Color Name:</strong> {selectedColor.name}
+                </p>
+                <p>
+                  <strong>Brand:</strong> {selectedColor.brand}
+                </p>
+                <p>
+                  <strong>Color Code:</strong> {selectedColor.code}
+                </p>
+              </div>
+              <div>
+                <h4>Purchase Information</h4>
+                <p>
+                  <strong>Hex Code:</strong> {selectedColor.hex}
+                </p>
+                <p>
+                  <strong>Product Code:</strong> {selectedColor.code}
+                </p>
+                <p>
+                  <strong>Color Family:</strong> {selectedColor.family}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 };
