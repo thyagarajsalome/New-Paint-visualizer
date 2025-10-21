@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { paintColors } from "./colors.js";
+import { categorizedColors, paintColors } from "./colors.js";
 
 const allRooms = [
   { name: "Living Hall", image: "/image/Living room.png" },
@@ -12,14 +12,11 @@ const initialColor = paintColors.find((c) => c.name === "Hale Navy").hex;
 
 function App() {
   const [selectedColor, setSelectedColor] = useState(initialColor);
-  const [displayedRooms, setDisplayedRooms] = useState(allRooms);
+  const [activeRoom, setActiveRoom] = useState(allRooms[0]);
 
   const handleRoomSelection = (roomName) => {
-    if (roomName === "All") {
-      setDisplayedRooms(allRooms);
-    } else {
-      setDisplayedRooms(allRooms.filter((room) => room.name === roomName));
-    }
+    const newRoom = allRooms.find((room) => room.name === roomName);
+    setActiveRoom(newRoom);
   };
 
   return (
@@ -47,74 +44,79 @@ function App() {
       <div className="main-content-area">
         {/* Viewport/Rooms Display */}
         <main className="previews-container">
-          <div className={`rooms-grid rooms-${displayedRooms.length}`}>
-            {displayedRooms.map((room) => (
-              <div key={room.name} className="room-container">
-                <div
-                  className="room-preview"
-                  style={{ backgroundColor: selectedColor }}
-                >
-                  <img
-                    src={room.image}
-                    alt={room.name}
-                    className="room-image"
-                  />
-                </div>
-                <p className="room-name">{room.name}</p>
-              </div>
-            ))}
+          <div className="room-container">
+            <div
+              className="room-preview"
+              style={{ backgroundColor: selectedColor }}
+            >
+              <img
+                src={activeRoom.image}
+                alt={activeRoom.name}
+                className="room-image"
+              />
+            </div>
+            <p className="room-name">{activeRoom.name}</p>
           </div>
         </main>
 
-        {/* Sidebar for Controls */}
-        <aside className="sidebar">
-          {/* Viewport Selection */}
-          <div className="control-section">
-            <h3 className="section-title">Select a Room</h3>
-            <div className="button-group">
-              <button onClick={() => handleRoomSelection("All")}>All</button>
-              {allRooms.map((room) => (
-                <button
-                  key={room.name}
-                  onClick={() => handleRoomSelection(room.name)}
-                >
-                  {room.name}
-                </button>
-              ))}
+        {/* Controls Panel */}
+        <aside className="controls-panel">
+          <div className="controls-wrapper">
+            {/* Room Selection */}
+            <div className="control-section room-selection">
+              <h3 className="section-title">Select Room</h3>
+              <div className="button-group">
+                {allRooms.map((room) => (
+                  <button
+                    key={room.name}
+                    onClick={() => handleRoomSelection(room.name)}
+                    className={activeRoom.name === room.name ? "active" : ""}
+                  >
+                    {room.name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Color Palette */}
-          <div className="control-section">
-            <h3 className="section-title">Color Palette</h3>
-            <div className="palette-grid">
-              {paintColors.map((color) => (
-                <button
-                  key={color.name}
-                  title={color.name}
-                  onClick={() => setSelectedColor(color.hex)}
-                  className={`color-swatch ${
-                    selectedColor === color.hex ? "selected" : ""
-                  }`}
-                  style={{ backgroundColor: color.hex }}
-                  aria-label={`Select ${color.name}`}
-                />
-              ))}
+            {/* Color Palette */}
+            <div className="control-section color-palette-section">
+              <h3 className="section-title">Color Palette</h3>
+              <div className="palette-container">
+                {Object.entries(categorizedColors).map(([category, colors]) => (
+                  <div key={category} className="color-category">
+                    <h4 className="category-title">{category}</h4>
+                    <div className="palette-grid">
+                      {colors.map((color) => (
+                        <button
+                          key={color.name}
+                          title={color.name}
+                          onClick={() => setSelectedColor(color.hex)}
+                          className={`color-swatch ${
+                            selectedColor === color.hex ? "selected" : ""
+                          }`}
+                          style={{ backgroundColor: color.hex }}
+                          aria-label={`Select ${color.name}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Start Over Button */}
-          <div className="control-section">
-            <h3 className="section-title">Start Over</h3>
-            <button
-              onClick={() => {
-                setSelectedColor(initialColor);
-                setDisplayedRooms(allRooms);
-              }}
-              className="reset-button"
-            >
-              Reset
-            </button>
+            {/* Reset Button */}
+            <div className="control-section reset-section">
+              <h3 className="section-title">Start Over</h3>
+              <button
+                onClick={() => {
+                  setSelectedColor(initialColor);
+                  setActiveRoom(allRooms[0]);
+                }}
+                className="reset-button"
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </aside>
       </div>
