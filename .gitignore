@@ -1,0 +1,93 @@
+Here’s a **complete `.gitignore`** tailored for a **full-stack setup** using **React + TypeScript + Tailwind (frontend)** and **Node.js + Express (backend)** — ideal for your kind of project 👇
+
+```{"id":"59204","variant":"standard","title":".gitignore for Full Stack (React + TypeScript + Tailwind + Node/Express)"}
+# -----------------------------
+# 📁 General
+# -----------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.bak
+*.tmp
+*.swp
+*.swo
+*.swn
+*.log
+
+# -----------------------------
+# 🧠 Node & Package Files
+# -----------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# -----------------------------
+# ⚙️ Build Outputs
+# -----------------------------
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# -----------------------------
+# ⚛️ Frontend (React + Vite)
+# -----------------------------
+# Vite build output
+frontend/dist/
+# React app build
+frontend/build/
+
+# Local environment files
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# -----------------------------
+# 🧩 Backend (Node + Express)
+# -----------------------------
+backend/node_modules/
+backend/dist/
+backend/logs/
+backend/uploads/
+backend/temp/
+backend/.env
+backend/.env.local
+
+# -----------------------------
+# 🧰 IDEs & Editors
+# -----------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# -----------------------------
+# 🧪 Testing
+# -----------------------------
+coverage/
+*.lcov
+
+# -----------------------------
+# 🧬 Cache & Misc
+# -----------------------------
+.eslintcache
+.stylelintcache
+.npm
+.yarn-integrity
+node_repl_history
+*.tgz
+
+# -----------------------------
+# 🧑‍💻 Optional (if using Docker)
+# -----------------------------
+docker-compose.override.yml
+.env.docker.local
+```
+
+Would you like me to split it into **frontend** and **backend** `.gitignore` files separately — so you can place one in each folder for better project organization?
